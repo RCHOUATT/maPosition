@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Géolocalisation</title>
+</head>
+<body>
+    <h1>Obtenir la Position Exacte</h1>
+    <p id="position"></p>
+
+    <script>
+        // Variable pour stocker les coordonnées
+        let userLocation = {
+            latitude: null,
+            longitude: null
+        };
+
+        // Fonction pour obtenir la position de l'utilisateur
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(savePosition, showError);
+            } else {
+                document.getElementById("position").innerHTML = "La géolocalisation n'est pas supportée par ce navigateur.";
+            }
+        }
+
+        // Fonction pour sauvegarder la position et générer un fichier texte
+        function savePosition(position) {
+            userLocation.latitude = position.coords.latitude;
+            userLocation.longitude = position.coords.longitude;
+
+            document.getElementById("position").innerHTML =
+                "Latitude: " + userLocation.latitude + "<br>Longitude: " + userLocation.longitude;
+
+            console.log("Coordonnées sauvegardées : ", userLocation);
+
+            // Générer un fichier texte avec les coordonnées
+            const fileContent = `Latitude: ${userLocation.latitude}\nLongitude: ${userLocation.longitude}`;
+            const blob = new Blob([fileContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+
+            // Créer un lien pour télécharger le fichier
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'location.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // Fonction pour afficher les erreurs
+        function showError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    document.getElementById("position").innerHTML = "L'utilisateur a refusé la demande de géolocalisation.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    document.getElementById("position").innerHTML = "Les informations de localisation ne sont pas disponibles.";
+                    break;
+                case error.TIMEOUT:
+                    document.getElementById("position").innerHTML = "La demande de localisation a expiré.";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    document.getElementById("position").innerHTML = "Une erreur inconnue est survenue.";
+                    break;
+            }
+        }
+
+        // Demander la position dès le chargement de la page
+        window.onload = getLocation;
+    </script>
+</body>
+</html>
